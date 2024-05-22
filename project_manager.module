@@ -1,0 +1,177 @@
+<?php
+
+//? IMPORTS
+
+//! PROJECTS
+
+module_load_include('inc', 'project_manager', 'projects/projects');
+
+//! TASKS
+
+module_load_include('inc', 'project_manager', 'tasks/tasks');
+
+//! VIEW ALL NODES
+
+module_load_include('inc', 'project_manager', 'views/project_manager_view_all_node');
+
+//? MENU
+
+/**
+ * Implements hook_menu().
+ */
+function project_manager_menu() {
+
+    $items = array();
+
+    //! PROJECTS
+  
+    $items['projects/list'] = array(
+        'title' => 'Project Management',
+        'description' => 'Efficiently manage projects.',
+        'page callback' => 'project_manager_projects_page', 
+        'access arguments' => array('view own projects'),
+        'type' => MENU_NORMAL_ITEM,
+    );
+
+    $items['projects/add'] = array(
+        'title' => 'Add Project',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('project_manager_project_add_form', array()),
+        'access arguments' => array('administer projects'),
+        'type' => MENU_NORMAL_ITEM,
+    );    
+
+    $items['projects/edit/%node'] = array(
+        'title' => 'Editar Proyecto',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('project_manager_project_edit_form', 2),
+        'access callback' => 'user_access',
+        'access arguments' => array('administer nodes'),
+        'type' => MENU_CALLBACK,
+      );        
+
+    //! TASKS
+
+    $items['tasks/add'] = array(
+        'title' => 'Add Task',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('task_manager_task_add_form'),
+        'access arguments' => array('administer tasks'),
+        'type' => MENU_NORMAL_ITEM,
+    );
+
+    //! VIEWS ALL NODE
+
+    $items['nodes/view'] = array(
+        'title' => 'View All Nodes',
+        'description' => 'View all project and task nodes.',
+        'page callback' => 'project_manager_view_all_node',
+        'access callback' => 'user_access',
+        'access arguments' => array('administer site configuration'),
+        'type' => MENU_NORMAL_ITEM,
+      );
+
+    $items['nodes/view/all'] = array(
+        'title' => 'Show All Nodes',
+        'page callback' => 'project_manager_view_all_node',
+        'page arguments' => array('all'),
+        'access callback' => 'user_access',
+        'access arguments' => array('administer site configuration'),
+        'type' => MENU_NORMAL_ITEM,
+    );
+
+    $node_types = array('project', 'task');
+    foreach ($node_types as $type) {
+        $items['nodes/view/' . $type] = array(
+        'title' => 'Show ' . ucfirst($type) . 's',
+        'page callback' => 'project_manager_view_all_node',
+        'page arguments' => array($type),
+        'access callback' => 'user_access',
+        'access arguments' => array('administer site configuration'),
+        'type' => MENU_NORMAL_ITEM,
+        );
+    }
+    
+    return $items;
+}
+
+//? PERMISSIONS
+
+/**
+ * Implements hook_permission().
+ */
+function project_manager_permission() {
+    return array(
+
+        //! PROJECTS
+
+        'administer projects' => array(
+            'title' => 'Administer projects',
+            'description' => 'Allows administration of projects on the site.',
+        ),
+
+        'view own projects' => array(
+            'title' => t('View own projects'),
+            'description' => t('Allows users to view only the projects they are assigned to.'),
+        ),
+
+        //! TASKS
+
+        'administer tasks' => array(
+            'title' => 'Administer tasks',
+            'description' => 'Allows administration of tasks on the site.',
+        ),
+
+        'view own tasks' => array(
+            'title' => t('View own tasks'),
+            'description' => t('Allows users to view only the tasks assigned to them.'),
+        ),
+
+    );
+}
+
+//? SECURITY
+
+//! PROJECT
+
+/**
+ * Implements additional validation to filter and remove unwanted HTML.
+ */
+function project_manager_node_form_validate($form, &$form_state) {
+    // Cleanse the value of the "project_name" field.
+    $form_state['values']['project_name'] = filter_xss($form_state['values']['project_name']);
+
+    // Cleanse the value of the "description" field.
+    $form_state['values']['description'] = filter_xss($form_state['values']['description']);
+
+    // Cleanse the value of the "participants" field.
+    $form_state['values']['participants'] = filter_xss($form_state['values']['participants']);
+
+    // Cleanse the value of the "client" field.
+    $form_state['values']['client'] = filter_xss($form_state['values']['client']);
+}
+
+//! TASK
+
+/**
+ * Implements additional validation to filter and remove unwanted HTML in the task form.
+ */
+function task_management_node_form_validate($form, &$form_state) {
+    // Cleanse the value of the "task_name" field.
+    $form_state['values']['task_name'] = filter_xss($form_state['values']['task_name']);
+
+    // Cleanse the value of the "description" field.
+    $form_state['values']['description'] = filter_xss($form_state['values']['description']);
+}
+
+//? VISTA
+
+/**
+ * Implements hook_views_api().
+ */
+function project_manager_views_api() {
+    return array(
+      'api' => 3, // Indica que el módulo es compatible con la versión 3 de la API de Views.
+      'path' => drupal_get_path('module', 'project_manager') . '/views', // Especifica la ruta donde se encuentra el módulo.
+    );
+}

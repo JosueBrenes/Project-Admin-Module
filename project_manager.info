@@ -1,0 +1,14 @@
+name = "Project Manager"
+description = "Module for managing projects and tasks."
+package = "Custom"
+core = "7.x"
+version = "1.0"
+
+dependencies[] = views
+dependencies[] = node
+
+files[] = "projects/projects.inc"
+files[] = "tasks/tasks.inc"
+files[] = "views/project_manager.views_default.inc"
+
+configure = "admin/config/project-manager/settings"

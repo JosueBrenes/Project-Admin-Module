@@ -1,0 +1,297 @@
+<?php
+
+/**
+ * Implements hook_install().
+ */
+function project_manager_install() {
+  // Crear el tipo de contenido "Proyecto".
+  $project_type = array(
+    'type' => 'project',
+    'name' => t('Project'),
+    'description' => t('Content type for managing projects.'),
+    'base' => 'node_content',
+    'custom' => TRUE,
+  );
+  node_type_save((object) $project_type);
+
+  // Agregar campos al tipo de contenido "Proyecto".
+  $fields_project = array(
+
+    // Descripción.
+    'field_project_description' => array(
+      'field_name' => 'field_project_description',
+      'type' => 'text_long',
+      'cardinality' => 1,
+      'label' => t('Description'), // Añadir la etiqueta del campo.
+    ),
+    // Fecha de Inicio.
+    'field_project_start_date' => array(
+      'field_name' => 'field_project_start_date', // Nombre de campo único.
+      'type' => 'date',
+      'settings' => array(
+        'date_format' => 'Y-m-d',
+      ),
+      'label' => t('Start Date'), // Añadir la etiqueta del campo.
+    ),
+    // Fecha de Finalización.
+    'field_project_end_date' => array(
+      'field_name' => 'field_project_end_date', // Nombre de campo único.
+      'type' => 'date',
+      'settings' => array(
+        'date_format' => 'Y-m-d',
+      ),
+      'label' => t('End Date'), // Añadir la etiqueta del campo.
+    ),
+    // Participantes.
+    'field_participants' => array(
+      'field_name' => 'field_participants',
+      'type' => 'text',
+      'cardinality' => FIELD_CARDINALITY_UNLIMITED,
+      'label' => t('Participants'), // Añadir la etiqueta del campo.
+    ),
+    // Correo electrónico.
+    'field_task_email' => array(
+      'field_name' => 'field_task_email',
+      'type' => 'text',
+      'cardinality' => 1,
+      'label' => t('Email'), // Añadir la etiqueta del campo.
+    ),
+    // Estado.
+    'field_status' => array(
+      'field_name' => 'field_status',
+      'type' => 'list_text',
+      'settings' => array(
+        'allowed_values' => array(
+          'in_progress' => 'In Progress',
+          'completed' => 'Completed',
+          'cancelled' => 'Cancelled',
+        ),
+      ),
+      'label' => t('Status'), // Añadir la etiqueta del campo.
+    ),
+    // Cliente.
+    'field_client' => array(
+      'field_name' => 'field_client',
+      'type' => 'text',
+      'cardinality' => 1,
+      'label' => t('Client'), // Añadir la etiqueta del campo.
+    ),
+    // Prioridad.
+    'field_priority' => array(
+      'field_name' => 'field_priority',
+      'type' => 'list_integer',
+      'settings' => array(
+        'allowed_values' => '1|Low,2|Medium,3|High',
+      ),
+      'label' => t('Priority'), // Añadir la etiqueta del campo.
+    ),
+    // Archivo Relevante al Proyecto.
+    'field_project_file' => array(
+      'field_name' => 'field_project_file',
+      'type' => 'file',
+      'cardinality' => 1,
+      'label' => t('Project File'), // Añadir la etiqueta del campo.
+    ),
+  );
+
+  // Crear los campos del tipo de contenido "Proyecto".
+  foreach ($fields_project as $field_name => $field_info) {
+    field_create_field($field_info);
+  }
+
+  // Asociar los campos al tipo de contenido "Proyecto".
+  foreach ($fields_project as $field_name => $field_info) {
+    $instance = array(
+      'field_name' => $field_name,
+      'entity_type' => 'node',
+      'bundle' => 'project',
+      'label' => $field_info['label'],
+      'widget' => array(
+        'type' => 'text_textfield',
+      ),
+      'display' => array(
+        'default' => array(
+          'type' => 'text_default',
+        ),
+      ),
+    );
+    field_create_instance($instance);
+  }
+
+  // Crear el tipo de contenido "Tarea".
+  $task_type = array(
+    'type' => 'task',
+    'name' => t('Task'),
+    'description' => t('Content type for managing tasks.'),
+    'base' => 'node_content',
+    'custom' => TRUE,
+  );
+  node_type_save((object) $task_type);
+
+  // Agregar campos al tipo de contenido "Tarea".
+  $fields_task = array(
+    // Nombre de la Tarea.
+    'field_task_name' => array(
+      'field_name' => 'field_task_name',
+      'type' => 'text',
+      'cardinality' => 1,
+      'label' => t('Task Name'), // Añadir la etiqueta del campo.
+    ),
+    // Descripción.
+    'field_task_description' => array(
+      'field_name' => 'field_task_description',
+      'type' => 'text_long',
+      'cardinality' => 1,
+      'label' => t('Description'), // Añadir la etiqueta del campo.
+    ),
+    // Fecha de Inicio.
+    'field_task_start_date' => array(
+      'field_name' => 'field_task_start_date', // Nombre de campo único.
+      'type' => 'date',
+      'settings' => array(
+        'date_format' => 'Y-m-d',
+      ),
+      'label' => t('Start Date'), // Añadir la etiqueta del campo.
+    ),
+    // Fecha de Finalización.
+    'field_task_end_date' => array(
+      'field_name' => 'field_task_end_date', // Nombre de campo único.
+      'type' => 'date',
+      'settings' => array(
+        'date_format' => 'Y-m-d',
+      ),
+      'label' => t('End Date'), // Añadir la etiqueta del campo.
+    ),
+    // Estado.
+    'field_task_status' => array(
+      'field_name' => 'field_task_status',
+      'type' => 'list_text',
+      'settings' => array(
+        'allowed_values' => array(
+          'in_progress' => 'In Progress',
+          'completed' => 'Completed',
+          'cancelled' => 'Cancelled',
+        ),
+      ),
+      'label' => t('Status'), // Añadir la etiqueta del campo.
+    ),
+    // Prioridad.
+    'field_task_priority' => array(
+      'field_name' => 'field_task_priority',
+      'type' => 'list_integer',
+      'settings' => array(
+        'allowed_values' => '1|Low,2|Medium,3|High',
+      ),
+      'label' => t('Priority'), // Añadir la etiqueta del campo.
+    ),
+    // Proyecto (Referencia a otro nodo).
+    'field_project_reference' => array(
+      'field_name' => 'field_project_reference',
+      'type' => 'entityreference',
+      'cardinality' => 1,
+      'settings' => array(
+        'target_type' => 'node',
+        'handler' => 'base',
+        'handler_settings' => array(
+          'target_bundles' => array('project'),
+        ),
+      ),
+      'label' => t('Project Reference'), // Añadir la etiqueta del campo.
+    ),  
+  );
+
+  // Crear los campos del tipo de contenido "Tarea".
+  foreach ($fields_task as $field_name => $field_info) {
+    field_create_field($field_info);
+  }
+
+  // Asociar los campos al tipo de contenido "Tarea".
+  foreach ($fields_task as $field_name => $field_info) {
+    $instance = array(
+      'field_name' => $field_name,
+      'entity_type' => 'node',
+      'bundle' => 'task',
+      'label' => $field_info['label'],
+      'widget' => array(
+        'type' => 'text_textfield',
+      ),
+      'display' => array(
+        'default' => array(
+          'type' => 'text_default',
+        ),
+      ),
+    );
+    field_create_instance($instance);
+  }
+
+  // Crea la carpeta 'files' si no existe.
+  $files_directory = file_default_scheme() . '://files_projects';
+  if (!file_prepare_directory($files_directory, FILE_CREATE_DIRECTORY)) {
+    drupal_set_message("No se pudo crear la carpeta 'files'.", 'error');
+  }
+
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function project_manager_uninstall() {
+  // Eliminar el tipo de contenido "Proyecto" y todos sus nodos.
+  if (node_type_load('project')) {
+    $projects = node_load_multiple(array(), array('type' => 'project'));
+    foreach ($projects as $project) {
+      node_delete($project->nid);
+    }
+    node_type_delete('project');
+  }
+
+  // Eliminar el tipo de contenido "Tarea" y todos sus nodos.
+  if (node_type_load('task')) {
+    $tasks = node_load_multiple(array(), array('type' => 'task'));
+    foreach ($tasks as $task) {
+      node_delete($task->nid);
+    }
+    node_type_delete('task');
+  }
+
+  // Definir los campos a eliminar.
+  $fields = array(
+    'field_project_name',
+    'field_project_description',
+    'field_project_start_date',
+    'field_project_end_date',
+    'field_participants',
+    'field_status',
+    'field_client',
+    'field_priority',
+    'field_project_file',
+    'field_task_name',
+    'field_task_description',
+    'field_task_start_date',
+    'field_task_end_date',
+    'field_task_status',
+    'field_task_priority',
+    'field_project_reference',
+  );
+
+  // Eliminar instancias de campo y los campos.
+  foreach ($fields as $field_name) {
+    $instances = field_info_instances('node', $field_name);
+    if (!empty($instances)) {
+      foreach ($instances as $instance) {
+        field_delete_instance($instance);
+      }
+    }
+    if (field_info_field($field_name)) {
+      field_delete_field($field_name);
+    }
+  }
+
+  // Eliminar los archivos asociados a los proyectos.
+  $files_directory = file_default_scheme() . '://files_projects';
+  file_unmanaged_delete_recursive($files_directory);
+  
+  // Limpia las cachés después de eliminar campos y tipos de contenido.
+  field_purge_batch(1000);
+  cache_clear_all('*', 'cache_field', TRUE);
+}
