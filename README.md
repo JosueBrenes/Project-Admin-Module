@@ -1,8 +1,8 @@
-### ProjectAdmin_D7
+### ProjectManager_D7
 
-# ProjectAdmin Module for Drupal 7
+# ProjectManager Module for Drupal 7
 
-Welcome to the **ProjectAdmin** module for Drupal 7! This module is designed to provide comprehensive project management capabilities within your Drupal 7 site. It includes features for creating and managing project-related content, ensuring seamless integration and ease of use.
+Welcome to the **ProjectManager** module for Drupal 7! This module is designed to provide comprehensive project management capabilities within your Drupal 7 site. It includes features for creating and managing project-related content, ensuring seamless integration and ease of use.
 
 ## Features
 
@@ -14,12 +14,12 @@ Welcome to the **ProjectAdmin** module for Drupal 7! This module is designed to 
 
 ## Installation
 
-To install the **ProjectAdmin** module, follow these steps:
+To install the **ProjectManager** module, follow these steps:
 
 1. **Download and Enable the Module**:
     ```bash
-    drush dl projectadmin_d7
-    drush en projectadmin_d7 -y
+    drush dl projectmanager_d7
+    drush en projectmanager_d7 -y
     ```
 
 2. **Run Database Updates**:
@@ -38,17 +38,17 @@ To uninstall the module and clean up all related content:
 
 1. **Disable the Module**:
     ```bash
-    drush dis projectadmin_d7 -y
+    drush dis projectmanager_d7 -y
     ```
 
 2. **Uninstall the Module**:
     ```bash
-    drush pm-uninstall projectadmin_d7 -y
+    drush pm-uninstall projectmanager_d7 -y
     ```
 
 ## Content Types
 
-The **ProjectAdmin** module creates the following content types:
+The **ProjectManager** module creates the following content types:
 
 1. **Project**:
     - Fields: File, Date, Email, Select, Node Reference, Number
@@ -88,7 +88,7 @@ Feel free to customize the module as per your requirements. The logic for each c
 
 ## Contributions
 
-Contributions are welcome! Please submit pull requests or open issues on the [GitHub repository](https://github.com/yourusername/projectadmin_d7).
+Contributions are welcome! Please submit pull requests or open issues on the [GitHub repository](https://github.com/yourusername/projectmanager_d7).
 
 ## License
 
@@ -96,6 +96,6 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ---
 
-Thank you for using **ProjectAdmin**! We hope this module enhances your project management experience in Drupal 7. For any questions or support, please open an issue on our GitHub repository.
+Thank you for using **ProjectManager**! We hope this module enhances your project management experience in Drupal 7. For any questions or support, please open an issue on our GitHub repository.
 
 Happy managing!
