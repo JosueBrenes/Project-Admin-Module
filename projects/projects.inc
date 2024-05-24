@@ -11,7 +11,7 @@ function project_manager_projects_page() {
     $output = '';
 
     // Agregar botón para agregar un nuevo proyecto.
-    $add_project_button = l(t('Agregar Proyecto'), 'projects/add', array('attributes' => array('class' => array('button'), 'style' => 'margin-bottom: 3rem;')));
+    $add_project_button = l(t('Add Project'), 'projects/add', array('attributes' => array('class' => array('button'), 'style' => 'margin-bottom: 3rem;')));
     $add_button_markup = '<div class="add-project-button">' . $add_project_button . '</div>';
     $output .= $add_button_markup;
 
@@ -22,10 +22,11 @@ function project_manager_projects_page() {
     $query = new EntityFieldQuery();
     $query->entityCondition('entity_type', 'node')
         ->entityCondition('bundle', 'project')
+        ->propertyCondition('status', NODE_PUBLISHED) // Filtrar solo los nodos publicados
         ->propertyOrderBy('created', 'DESC'); // Ordenar por fecha de creación descendente.
     $result = $query->execute();
 
-    // Verificar si se encontraron nodos de proyectos.
+    // Verificar si se encontraron nodos de proyectos publicados.
     if (isset($result['node'])) {
         // Construir la tabla HTML para mostrar los proyectos.
         $rows = array();
@@ -41,9 +42,9 @@ function project_manager_projects_page() {
 
             // Convertir el valor de prioridad de número a texto.
             $priorities = array(
-                3 => 'Alta',
-                2 => 'Media',
-                1 => 'Baja',
+                3 => 'High',
+                2 => 'Medium',
+                1 => 'Low',
             );
             $priority = isset($priorities[$priority_value]) ? check_plain($priorities[$priority_value]) : '-';
 
@@ -59,8 +60,8 @@ function project_manager_projects_page() {
                 $end_date,
                 $client,
                 $priority,
-                l(t('Editar'), 'projects/edit/' . $node->nid),
-                l(t('Eliminar'), 'node/' . $node->nid . '/delete', array('attributes' => array('class' => array('use-ajax')))),
+                l(t('Edit'), 'projects/edit/' . $node->nid),
+                l(t('Delete'), 'delete/' . $node->nid),
             );
 
             $rows[] = $row;
@@ -68,21 +69,21 @@ function project_manager_projects_page() {
 
         $header = array(
             'ID',
-            'Nombre del Proyecto',
-            'Descripción',
-            'Estado',
-            'Fecha de Inicio',
-            'Fecha de Finalización',
-            'Cliente',
-            'Prioridad',
-            'Acciones',
-            'Eliminar',
+            'Project Name',
+            'Description',
+            'Status',
+            'Start Date',
+            'End Date',
+            'Client',
+            'Priority',
+            'Actions',
+            'Delete',
         );
 
         // Genera la tabla HTML.
         $output .= theme('table', array('header' => $header, 'rows' => $rows));
     } else {
-        $output .= t('No se encontró proyectos.');
+        $output .= t('No projects found.');
     }
     return $output;
 }
@@ -147,20 +148,20 @@ function project_manager_project_add_form($form, &$form_state, $node = NULL) {
     // Campo de título del proyecto.
     $form['title'] = array(
         '#type' => 'textfield',
-        '#title' => t('Nombre del Proyecto'),
+        '#title' => t('Project Name'),
         '#required' => TRUE,
     );
 
     $form['field_project_description'] = array(
         '#type' => 'textarea',
-        '#title' => t('Descripción'),
+        '#title' => t('Description'),
         '#required' => TRUE,
     );
 
     // Campo de fecha de inicio del proyecto.
     $form['start_date'] = array(
         '#type' => 'date_popup',
-        '#title' => t('Fecha de Inicio'),
+        '#title' => t('Start Date'),
         '#date_format' => 'Y-m-d',
         '#required' => TRUE,
     );
@@ -168,7 +169,7 @@ function project_manager_project_add_form($form, &$form_state, $node = NULL) {
     // Campo de fecha de finalización del proyecto.
     $form['end_date'] = array(
         '#type' => 'date_popup',
-        '#title' => t('Fecha de Finalización'),
+        '#title' => t('End Date'),
         '#date_format' => 'Y-m-d',
         '#required' => TRUE,
     );
@@ -176,7 +177,7 @@ function project_manager_project_add_form($form, &$form_state, $node = NULL) {
     // Campo de participantes del proyecto.
     $form['participants'] = array(
         '#type' => 'textfield',
-        '#title' => t('Participantes'),
+        '#title' => t('Participants'),
         '#required' => TRUE,
     );
 
@@ -193,9 +194,9 @@ function project_manager_project_add_form($form, &$form_state, $node = NULL) {
         '#type' => 'select',
         '#title' => t('Estado'),
         '#options' => array(
-            'En Progreso' => t('En Progreso'),
-            'Completado' => t('Completado'),
-            'Pendiente' => t('Pendiente'),
+            'En Progreso' => t('In Progress'),
+            'Completado' => t('Completed'),
+            'Pendiente' => t('Pending'),
         ),
         '#required' => TRUE,
     );
@@ -203,7 +204,7 @@ function project_manager_project_add_form($form, &$form_state, $node = NULL) {
     // Campo de cliente del proyecto.
     $form['client'] = array(
         '#type' => 'textfield',
-        '#title' => t('Cliente'),
+        '#title' => t('Client'),
         '#required' => TRUE,
     );
 
@@ -212,9 +213,9 @@ function project_manager_project_add_form($form, &$form_state, $node = NULL) {
         '#type' => 'select',
         '#title' => t('Prioridad'),
         '#options' => array(
-            'Alta' => t('Alta'),
-            'Media' => t('Media'),
-            'Baja' => t('Baja'),
+            'Alta' => t('High'),
+            'Media' => t('Medium'),
+            'Baja' => t('Low'),
         ),
         '#required' => TRUE,
     );
@@ -222,13 +223,13 @@ function project_manager_project_add_form($form, &$form_state, $node = NULL) {
     // Campo de carga de archivo adjunto.
     $form['file_upload'] = array(
         '#type' => 'file',
-        '#title' => t('Adjuntar Archivo (PDF)'),
+        '#title' => t('Attach File (PDF)'),
     );
 
     // Botón de envío del formulario.
     $form['submit'] = array(
         '#type' => 'submit',
-        '#value' => t('Agregar Proyecto'),
+        '#value' => t('Add Project'),
     );
 
     return $form;
@@ -251,14 +252,14 @@ function project_manager_project_edit_form($form, &$form_state, $node) {
     // Campo de título del proyecto.
     $form['title'] = array(
         '#type' => 'textfield',
-        '#title' => t('Nombre del Proyecto'),
+        '#title' => t('Project Name'),
         '#required' => TRUE,
         '#default_value' => $node->title,
     );
 
     $form['field_project_description'] = array(
         '#type' => 'textarea',
-        '#title' => t('Descripción'),
+        '#title' => t('Description'),
         '#required' => TRUE,
         '#default_value' => isset($node->field_project_description[$node->language][0]['value']) ? $node->field_project_description[$node->language][0]['value'] : '',
     );
@@ -266,7 +267,7 @@ function project_manager_project_edit_form($form, &$form_state, $node) {
     // Campo de fecha de inicio del proyecto.
     $form['start_date'] = array(
         '#type' => 'date_popup',
-        '#title' => t('Fecha de Inicio'),
+        '#title' => t('Start Date'),
         '#date_format' => 'Y-m-d',
         '#required' => TRUE,
         '#default_value' => isset($node->field_project_start_date['und'][0]['value']) ? date('Y-m-d', $node->field_project_start_date['und'][0]['value']) : '',
@@ -275,7 +276,7 @@ function project_manager_project_edit_form($form, &$form_state, $node) {
     // Campo de fecha de finalización del proyecto.
     $form['end_date'] = array(
         '#type' => 'date_popup',
-        '#title' => t('Fecha de Finalización'),
+        '#title' => t('End Date'),
         '#date_format' => 'Y-m-d',
         '#required' => TRUE,
         '#default_value' => isset($node->field_project_end_date['und'][0]['value']) ? date('Y-m-d', $node->field_project_end_date['und'][0]['value']) : '',
@@ -284,7 +285,7 @@ function project_manager_project_edit_form($form, &$form_state, $node) {
     // Campo de participantes del proyecto.
     $form['participants'] = array(
         '#type' => 'textfield',
-        '#title' => t('Participantes'),
+        '#title' => t('Participants'),
         '#required' => TRUE,
         '#default_value' => isset($node->field_participants['und'][0]['value']) ? $node->field_participants['und'][0]['value'] : '',
     );      
@@ -303,9 +304,9 @@ function project_manager_project_edit_form($form, &$form_state, $node) {
         '#type' => 'select',
         '#title' => t('Estado'),
         '#options' => array(
-            'En Progreso' => t('En Progreso'),
-            'Completado' => t('Completado'),
-            'Pendiente' => t('Pendiente'),
+            'En Progreso' => t('In Progress'),
+            'Completado' => t('Completed'),
+            'Pendiente' => t('Pending'),
         ),
         '#required' => TRUE,
         '#default_value' => isset($node->field_status['und'][0]['value']) ? $node->field_status['und'][0]['value'] : '',
@@ -314,7 +315,7 @@ function project_manager_project_edit_form($form, &$form_state, $node) {
     // Campo de cliente del proyecto.
     $form['client'] = array(
         '#type' => 'textfield',
-        '#title' => t('Cliente'),
+        '#title' => t('Client'),
         '#required' => TRUE,
         '#default_value' => isset($node->field_client['und'][0]['value']) ? $node->field_client['und'][0]['value'] : '',
     );
@@ -322,11 +323,11 @@ function project_manager_project_edit_form($form, &$form_state, $node) {
     // Campo de prioridad del proyecto.
     $form['priority'] = array(
         '#type' => 'select',
-        '#title' => t('Prioridad'),
+        '#title' => t('Priority'),
         '#options' => array(
-            'Alta' => t('Alta'),
-            'Media' => t('Media'),
-            'Baja' => t('Baja'),
+            'Alta' => t('High'),
+            'Media' => t('Medium'),
+            'Baja' => t('Low'),
         ),
         '#required' => TRUE,
         '#default_value' => isset($node->field_priority['und'][0]['value']) ? $node->field_priority['und'][0]['value'] : '',
@@ -335,8 +336,8 @@ function project_manager_project_edit_form($form, &$form_state, $node) {
     // Campo para cargar el archivo adjunto.
     $form['file_upload'] = array(
         '#type' => 'managed_file',
-        '#title' => t('Adjuntar Archivo (PDF)'),
-        '#description' => t('Adjunte un archivo PDF relacionado con el proyecto.'),
+        '#title' => t('Attach File (PDF)'),
+        '#description' => t('Attach a PDF file related to the project.'),
         '#upload_validators' => array(
             'file_validate_extensions' => array('pdf'),
         ),
@@ -345,7 +346,7 @@ function project_manager_project_edit_form($form, &$form_state, $node) {
     // Botón de enviar.
     $form['submit'] = array(
         '#type' => 'submit',
-        '#value' => t('Guardar Cambios'),
+        '#value' => t('Save Changes'),
     );
 
     // Ocultar el campo de ID del nodo.
@@ -410,3 +411,4 @@ function project_manager_project_edit_form_submit($form, &$form_state) {
     drupal_set_message(t('El proyecto ha sido actualizado satisfactoriamente.'));
     $form_state['redirect'] = 'projects/list';
 }
+

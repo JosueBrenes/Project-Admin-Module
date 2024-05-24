@@ -8,7 +8,7 @@ function task_manager_task_add_form($form, &$form_state) {
     
     // Verificar si el usuario es administrador.
     if (!user_access('administer tasks')) {
-      return t('Acceso denegado. Debe tener permiso para ver sus propios proyectos.');
+      return t('Access denied. You must have permission to view your own projects.');
   }
     
     // Campo de texto para el nombre de la tarea.

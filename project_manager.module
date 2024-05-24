@@ -14,6 +14,10 @@ module_load_include('inc', 'project_manager', 'tasks/tasks');
 
 module_load_include('inc', 'project_manager', 'views/project_manager_view_all_node');
 
+//! FUNCTIONS 
+
+module_load_include('inc', 'project_manager', 'utils/utils');
+
 //? MENU
 
 /**
@@ -48,7 +52,7 @@ function project_manager_menu() {
         'access callback' => 'user_access',
         'access arguments' => array('administer nodes'),
         'type' => MENU_CALLBACK,
-      );        
+    );        
 
     //! TASKS
 
@@ -91,6 +95,24 @@ function project_manager_menu() {
         'type' => MENU_NORMAL_ITEM,
         );
     }
+
+    //! FUNCTION DELETE
+
+    $items['delete/%'] = array(
+        'title' => 'Eliminar Proyecto',
+        'page callback' => 'project_delete',
+        'page arguments' => array(1),
+        'access callback' => TRUE, 
+        'type' => MENU_CALLBACK,
+    );
+
+    $items['tasks/delete/%'] = array(
+        'title' => 'Eliminar Tarea',
+        'page callback' => 'task_delete',
+        'page arguments' => array(1),
+        'access callback' => TRUE,
+        'type' => MENU_CALLBACK,
+    );
     
     return $items;
 }
@@ -125,6 +147,13 @@ function project_manager_permission() {
         'view own tasks' => array(
             'title' => t('View own tasks'),
             'description' => t('Allows users to view only the tasks assigned to them.'),
+        ),
+
+        //! NODES
+
+        'administer nodes' => array(
+            'title' => t('Administer nodes'),
+            'description' => t('Allows users to administer nodes on the site.'),
         ),
 
     );
